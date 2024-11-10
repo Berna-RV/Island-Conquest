@@ -1,8 +1,9 @@
-[gd_scene load_steps=49 format=3 uid="uid://cx5at46ka6oqe"]
+[gd_scene load_steps=53 format=3 uid="uid://cx5at46ka6oqe"]
 
 [ext_resource type="Texture2D" uid="uid://p0wbtyplod88" path="res://assets/Factions/Knights/Troops/Warrior/Blue/Warrior_Blue.png" id="1_dsond"]
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_x26qo"]
 [ext_resource type="Texture2D" uid="uid://uvldgn27n83t" path="res://assets/Factions/Knights/Troops/Dead/Dead.png" id="2_l4jxi"]
+[ext_resource type="Texture2D" uid="uid://bej51q4ei0y5r" path="res://assets/UI/Banners/Banner_Connection_Up.png" id="4_bpfcl"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l8ckn"]
 atlas = ExtResource("1_dsond")
@@ -345,12 +346,89 @@ animations = [{
 "speed": 8.0
 }]
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_eo36q"]
+radius = 19.105
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_mk7rg"]
+radius = 46.0109
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_88k71"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("4_bpfcl")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
 [node name="player" type="CharacterBody2D"]
+position = Vector2(3, -242)
+collision_layer = 3
 script = ExtResource("1_x26qo")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(0, -34)
 sprite_frames = SubResource("SpriteFrames_0u5xp")
 animation = &"idle"
-frame_progress = 0.681835
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+y_sort_enabled = true
+position = Vector2(0, -21)
+shape = SubResource("CircleShape2D_eo36q")
+
+[node name="player_hitbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="player_hitbox"]
+position = Vector2(0, -45)
+shape = SubResource("CircleShape2D_mk7rg")
+
+[node name="attack_cooldown" type="Timer" parent="."]
+wait_time = 0.5
+
+[node name="deal_attack_timer" type="Timer" parent="."]
+wait_time = 0.6
+
+[node name="Camera2D" type="Camera2D" parent="."]
+limit_smoothed = true
+position_smoothing_enabled = true
+rotation_smoothing_enabled = true
+
+[node name="win_message" type="AnimatedSprite2D" parent="Camera2D"]
+z_index = 8
+position = Vector2(0.999992, 37)
+scale = Vector2(2.88281, 2.24479)
+sprite_frames = SubResource("SpriteFrames_88k71")
+
+[node name="Label" type="Label" parent="Camera2D/win_message"]
+offset_left = -40.1044
+offset_top = -38.7692
+offset_right = 40.8956
+offset_bottom = -15.7692
+text = "You Win !!!"
+
+[node name="healthbar" type="ProgressBar" parent="."]
+modulate = Color(0.739439, 0.0509628, 6.73831e-07, 1)
+offset_left = -43.0
+offset_top = -111.0
+offset_right = 159.0
+offset_bottom = -84.0
+scale = Vector2(0.4, 0.4)
+max_value = 200.0
+show_percentage = false
+
+[node name="regin_timer" type="Timer" parent="."]
+wait_time = 5.0
+autostart = true
+
+[node name="win_message_timer" type="Timer" parent="."]
+wait_time = 5.0
+one_shot = true
+
+[connection signal="body_entered" from="player_hitbox" to="." method="_on_player_hitbox_body_entered"]
+[connection signal="body_exited" from="player_hitbox" to="." method="_on_player_hitbox_body_exited"]
+[connection signal="timeout" from="attack_cooldown" to="." method="_on_attack_cooldown_timeout"]
+[connection signal="timeout" from="deal_attack_timer" to="." method="_on_deal_attack_timer_timeout"]
+[connection signal="timeout" from="regin_timer" to="." method="_on_regin_timer_timeout"]
+[connection signal="timeout" from="win_message_timer" to="." method="_on_win_message_timer_timeout"]
